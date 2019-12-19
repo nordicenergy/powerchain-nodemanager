@@ -16,12 +16,12 @@ import (
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	"gitlab.com/lition/lition-maker-nodemanager/client"
-	"gitlab.com/lition/lition-maker-nodemanager/contractclient"
-	"gitlab.com/lition/lition-maker-nodemanager/service"
-	"gitlab.com/lition/lition/accounts/abi/bind"
-	"gitlab.com/lition/lition/crypto"
-	litionScClient "gitlab.com/lition/lition_contracts/contracts/client"
+	"gitlab.com/nordicenergy/powerchain-maker-nodemanager/client"
+	"gitlab.com/nordicenergy/powerchain-maker-nodemanager/contractclient"
+	"gitlab.com/nordicenergy/powerchain-maker-nodemanager/service"
+	"gitlab.com/nordicenergy/nordicenergy/accounts/abi/bind"
+	"gitlab.com/nordicenergy/nordicenergy/crypto"
+	nordicenergyScClient "gitlab.com/nordicenergy/nordicenergy_contracts/contracts/client"
 )
 
 func init() {
@@ -77,7 +77,7 @@ func main() {
 			}
 
 			if userDetails.Mining == false {
-				// Let lition SC know that this node wants to start mining
+				// Let nordicenergy SC know that this node wants to start mining
 				tx, err := contractClient.StartMining(auth)
 				if err != nil {
 					log.Fatal("Unable to start mining. Err: ", err)
@@ -102,7 +102,7 @@ func main() {
 						"It might take from few seconds to few hours(edge case when ethereum network is halted). " +
 						"You can check status of the StartMining transaction here:\n" + ethScanURL + "\n\n" +
 						"In case it takes too long and you need to speed up things, you can manually call StartMining method with " +
-						"higher gas price through our SideChain Manager here:\nhttps://lition.io/sidechainmanager\n\n" +
+						"higher gas price through our SideChain Manager here:\nhttps://nordicenergy.io/sidechainmanager\n\n" +
 						"Do not shut down this process in the meantime.\n\n" +
 						"*****************************************************************************\n\n"
 				fmt.Printf(terminalMsg)
@@ -162,7 +162,7 @@ func main() {
 	router.HandleFunc("/createAccount", nodeService.OptionsHandler).Methods("OPTIONS")
 	router.HandleFunc("/getAccounts", nodeService.GetAccountsHandler).Methods("GET")
 
-	router.PathPrefix("/contracts").Handler(http.StripPrefix("/contracts", http.FileServer(http.Dir("/root/lition-maker/contracts"))))
+	router.PathPrefix("/contracts").Handler(http.StripPrefix("/contracts", http.FileServer(http.Dir("/root/powerchain-maker/contracts"))))
 	router.PathPrefix("/geth").Handler(http.StripPrefix("/geth", http.FileServer(http.Dir("/home/node/qdata/gethLogs"))))
 	router.PathPrefix("/constellation").Handler(http.StripPrefix("/constellation", http.FileServer(http.Dir("/home/node/qdata/constellationLogs"))))
 	router.PathPrefix("/").Handler(http.StripPrefix("/", NewFileServer("NodeManagerUI")))
@@ -215,7 +215,7 @@ func main() {
 		}
 	}
 
-	// Deinit lition smart contract cliet
+	// Deinit nordicenergy smart contract cliet
 	contractClient.DeInit()
 
 	// Create a deadline to wait for.
@@ -256,7 +256,7 @@ func InitPowerChainContractClient(
 	contractAddress string,
 	chainID int,
 	privateKeyStr string,
-	miningFlag bool) (client *litionScClient.ContractClient, auth *bind.TransactOpts, pubKey string, err error) {
+	miningFlag bool) (client *nordicenergyScClient.ContractClient, auth *bind.TransactOpts, pubKey string, err error) {
 
 	log.Info("Initialize PowerChain Contract Client")
 	err = nil
@@ -267,7 +267,7 @@ func InitPowerChainContractClient(
 	}
 
 	// Init PowerChain Smartcontract client
-	client, err = litionScClient.NewClient(infuraURL, contractAddress, big.NewInt(int64(chainID)))
+	client, err = nordicenergyScClient.NewClient(infuraURL, contractAddress, big.NewInt(int64(chainID)))
 	if err != nil {
 		return
 	}
